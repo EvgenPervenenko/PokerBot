@@ -13,6 +13,10 @@ namespace Entities {
 		virtual ~DillerImitator();
 		
 		virtual Card GetCard() override;
+		virtual std::map<unsigned int, std::pair<Card, Card> > GetDistribution() override;
+		virtual std::vector<Card> GetFlop() override;
+		virtual Card GetRiver() override;
+		virtual Card GetTurn() override;
 		
 	private:
 		std::vector<Card> _deck;

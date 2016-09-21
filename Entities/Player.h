@@ -27,8 +27,20 @@ namespace Entities {
 		~Player() = default;
 		
 		Actions GetProbabilityAction( Actions );
+		const std::pair<Card, Card> &GetHand() const;
+		unsigned GetId() const;
+		const std::shared_ptr<PlayerMath::ICore> &GetProcessor() const;
+		unsigned long long GetCountPlayedRounds() const;
+		unsigned long long GetCountRoundsInGame() const;
+		double GetBank() const;
 		
+		void SetHand(const std::pair<Card, Card> &hand);
+		void SetId(const unsigned &id);
+		void SetProcessor(const std::shared_ptr<PlayerMath::ICore> &processor);
+		void SetBank(double bank);
 		void Reset();
+		void AddAction( Actions );
+		void AddCard( const Card &card );
 		
 	private:
 		unsigned _id;

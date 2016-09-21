@@ -22,3 +22,31 @@ Card DillerImitator::GetCard()
 	
 	return card;
 }
+
+std::map<unsigned int, std::pair<Card, Card> > DillerImitator::GetDistribution()
+{
+	std::map<unsigned int, std::pair<Card, Card> > distribution;
+	
+	return distribution;
+}
+
+std::vector<Card> DillerImitator::GetFlop()
+{
+	std::vector<Card> flop;
+	
+	return flop;
+}
+
+Card DillerImitator::GetRiver()
+{
+	Card river;
+	
+	return river;
+}
+
+Card DillerImitator::GetTurn()
+{
+	Card turn;
+	
+	return turn;
+}

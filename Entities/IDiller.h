@@ -2,6 +2,8 @@
 #define ENTITIES_DILLER_H
 
 #include "Card.h"
+#include <map>
+#include <vector>
 
 namespace Entities {
 	
@@ -9,6 +11,10 @@ namespace Entities {
 	{
 	public:
 		virtual Card GetCard() = 0;
+		virtual std::map<unsigned int, std::pair<Card, Card> > GetDistribution() = 0;
+		virtual std::vector<Card> GetFlop() = 0;
+		virtual Card GetRiver() = 0;
+		virtual Card GetTurn() = 0;
 		
 		virtual ~IDiller()
 		{}

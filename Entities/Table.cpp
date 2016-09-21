@@ -32,3 +32,18 @@ void Table::TakePlace(unsigned short placeNumber, const std::shared_ptr<Player> 
 	
 	_places.insert( std::make_pair( placeNumber, player ) );
 }
+
+void Table::AddCardOnBoard(const Card &card)
+{
+	_board.push_back( card );
+}
+
+const std::vector<Card> &Table::GetBoard() const
+{
+	return _board;
+}
+
+const std::map<unsigned short, std::shared_ptr<Player> > &Table::GetPlaces() const
+{
+	return _places;
+}

@@ -14,13 +14,18 @@ namespace Entities {
 		Table();
 		
 		std::vector<unsigned short> GetFreePlaces();
+		const std::map<unsigned short, std::shared_ptr<Player> > &GetPlaces() const;
+		const std::vector<Card> &GetBoard() const;
 		
 		void TakePlace( unsigned short placeNumber, const std::shared_ptr<Player> & );
+		
+		void AddCardOnBoard( const Card & );
+		
 		
 	private:
 		std::map<unsigned short, std::shared_ptr<Player> > _places;
 		std::vector<double> _bankChanging;
-		
+		std::vector<Card> _board;
 	};
 	
 } // namespace Entities
