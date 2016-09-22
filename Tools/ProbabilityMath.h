@@ -10,13 +10,17 @@ namespace Tools {
 	class ProbabilityMath
 	{
 	public:
-		static qreal CalculateEV( qreal result1, qreal result2 );
+		static qreal CalculateEV(const std::pair<Entities::Card, Entities::Card> &hand, 
+		                          const std::vector<Entities::Card> &board , qreal bankWithRaise, qreal nessesaryCall);
 		static qreal CalculateProbabilityForBestUpdate( const std::pair<Entities::Card, Entities::Card> &hand, 
-		                                            const std::vector<Entities::Card> &board );
+		                                                const std::vector<Entities::Card> &board );
+		static qreal CalculateProbabilityForLoss( qreal probabilityForBestUpdate );
 		
 	private:
-		static qint8 CalculateCountCardsForStreat( const std::vector<Entities::Card> &boardWithHand );
+		static qint8 CalculateCountCardsForStreatInDeck( const std::vector<Entities::Card> &boardWithHand );
 		static qint8 CalculateCountCardsForFlash( const std::vector<Entities::Card> &boardWithHand );
+		static qint8 CalculateCountCardsForFlashInDeck( const std::vector<Entities::Card> &boardWithHand );
+		static qint8 CalculateMaxCardsCountOneSuit( const std::vector<Entities::Card> &boardWithHand );
 		static bool IsStreatDraw( const std::vector<Entities::Card> & );
 		static bool IsFlashDraw( const std::vector<Entities::Card> & );
 		

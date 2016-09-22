@@ -4,9 +4,15 @@
 using namespace Tools;
 
 
-qreal ProbabilityMath::CalculateEV(qreal result1, qreal result2)
+qreal ProbabilityMath::CalculateEV(const std::pair<Entities::Card, Entities::Card> &hand, 
+                                   const std::vector<Entities::Card> &board, 
+                                   qreal bankWithRaise, 
+                                   qreal nessesaryCall)
 {
-	return result1 + result2;
+	auto probabilityForBestHand = CalculateProbabilityForBestUpdate( hand, board );
+	auto probabilityForLoss = CalculateProbabilityForLoss( probabilityForBestHand );
+	
+	return probabilityForBestHand * bankWithRaise - probabilityForLoss * nessesaryCall;
 }
 
 qreal ProbabilityMath::CalculateProbabilityForBestUpdate(const std::pair<Entities::Card, Entities::Card> &hand, 
@@ -22,39 +28,63 @@ qreal ProbabilityMath::CalculateProbabilityForBestUpdate(const std::pair<Entitie
 	qreal probability( 0 );
 	
 	if( IsStreatDraw( temp ) )
-		probability = CalculateCountCardsForStreat( temp ) / countCardsInDeck;
+		probability = (qreal)CalculateCountCardsForStreatInDeck( temp ) / countCardsInDeck;
 	else if( IsFlashDraw( temp ) )
-		probability = CalculateCountCardsForFlash( temp ) / countCardsInDeck;
+		probability = (qreal)CalculateCountCardsForFlashInDeck( temp ) / countCardsInDeck;
 	
 	return probability;
 }
 
+qreal ProbabilityMath::CalculateProbabilityForLoss(qreal probabilityForBestUpdate)
+{
+	return 1 - probabilityForBestUpdate;
+}
+
 qint8 ProbabilityMath::CalculateCountCardsForFlash(const std::vector<Entities::Card> &boardWithHand)
+{
+	qint8 countCardsInFlashCombination( 5 );
+	
+	auto countCards = CalculateMaxCardsCountOneSuit( boardWithHand );
+	
+	return countCardsInFlashCombination - countCards;
+}
+
+qint8 ProbabilityMath::CalculateCountCardsForFlashInDeck(const std::vector<Entities::Card> &boardWithHand)
+{
+	quint8 countOneSuitCardsInDeck( 13 );
+	
+	auto countCards = CalculateMaxCardsCountOneSuit( boardWithHand );
+	
+	return countOneSuitCardsInDeck - countCards;
+}
+
+qint8 ProbabilityMath::CalculateMaxCardsCountOneSuit(const std::vector<Entities::Card> &boardWithHand)
 {
 	auto temp = boardWithHand;
 	
 	auto countHearts = (quint8)std::count_if( temp.begin(), temp.end(), 
-	                                  [=](const Entities::Card &card)
+	                                          [=](const Entities::Card &card)
 	{return card.GetSuit() == Entities::Suit::Heart; } );
 	
 	auto countDimonds = (quint8)std::count_if( temp.begin(), temp.end(), 
-	                                   [=](const Entities::Card &card)
+	                                           [=](const Entities::Card &card)
 	{return card.GetSuit() == Entities::Suit::Dimond; } );
 	
 	auto countClumbs = (quint8)std::count_if( temp.begin(), temp.end(), 
-	                                  [=](const Entities::Card &card)
+	                                          [=](const Entities::Card &card)
 	{return card.GetSuit() == Entities::Suit::Clubs; } );
 	
 	auto countSpades = (quint8)(temp.size() - ( countHearts + countDimonds + countClumbs ));
 	
-	qint8 countCardsInFlashCombination( 5 );
-	
-	return countCardsInFlashCombination - qMax( qMax( countHearts, countDimonds ), 
-	                                            qMax( countClumbs, countSpades ) );
+	return qMax( qMax( countHearts, countDimonds ), 
+	             qMax( countClumbs, countSpades ) );
 }
 
-qint8 ProbabilityMath::CalculateCountCardsForStreat(const std::vector<Entities::Card> &boardWithHand)
+qint8 ProbabilityMath::CalculateCountCardsForStreatInDeck(const std::vector<Entities::Card> &boardWithHand)
 {
+	if( boardWithHand.size() < 3 )
+		return 0;
+	
 	auto temp = boardWithHand;
 	
 	std::sort( temp.begin(), temp.end(), 
@@ -64,41 +94,61 @@ qint8 ProbabilityMath::CalculateCountCardsForStreat(const std::vector<Entities::
 	}
 	);
 	
-	const quint8 countCardsInStreatCombination( 5 );
-	qint8 countCardsForStreat( countCardsInStreatCombination );
-	qint8 minCardsForStreat( countCardsInStreatCombination );
+	bool isHoleStreatDraw( false );
+	auto countCards( 0 );
 	
-	for( size_t i = 1; i < temp.size(); ++i )
+	for( size_t i = 0; i < temp.size(); ++i )
 	{
-		auto currentCardRank = static_cast<unsigned short>( temp.at( i - 1 ).GetRank() );
-		auto nextCardRank = static_cast<unsigned short>( temp.at( i ).GetRank() );
+		auto countCardsInDeq( 1 );
+		auto currentCard = temp.at( i );
+		bool isFirstHole( false );
 		
-		auto dif = nextCardRank - currentCardRank;
-		
-		if( dif != 0 )
-			continue;
-		else if( dif == 1 )
-			--countCardsForStreat;
-		else
+		for( size_t j = i + 1; j < temp.size(); ++j )
 		{
-			countCardsForStreat = countCardsInStreatCombination;
-			minCardsForStreat = qMin( countCardsForStreat, minCardsForStreat );
+			auto nextCard = temp.at( j );
+			
+			auto dif = static_cast<quint8>( nextCard.GetRank() ) - static_cast<quint8>( currentCard.GetRank() );
+			if( dif == 1 )
+			{
+				currentCard = nextCard;
+				++countCardsInDeq;
+			}
+			else if( isFirstHole == true )
+				break;
+			else if( dif == 2 )
+			{
+				isFirstHole = true;
+			}
+			else
+				break;
+		}
+		
+		if( countCardsInDeq > 3 )
+		{
+			isHoleStreatDraw = isFirstHole;
+			countCards = countCardsInDeq;
+			break;
 		}
 	}
 	
-	return minCardsForStreat;
+	if( isHoleStreatDraw )
+		return 4;
+	else if( countCards == 4 )
+		return 8;
+	else
+		return 0;
 }
 
 bool ProbabilityMath::IsStreatDraw(const std::vector<Entities::Card> &cards)
 {
-	auto countCardsForStreat = CalculateCountCardsForStreat( cards );
+	auto countCardsForStreat = CalculateCountCardsForStreatInDeck( cards );
 	
-	return countCardsForStreat < 1;
+	return countCardsForStreat;
 }
 
 bool ProbabilityMath::IsFlashDraw(const std::vector<Entities::Card> &cards)
 {
-	auto countCardsForFlash = CalculateCountCardsForFlash( cards );
+	auto countCardsForFlash = CalculateCountCardsForFlashInDeck( cards );
 	
-	return countCardsForFlash < 2;
+	return countCardsForFlash == 9;
 }
