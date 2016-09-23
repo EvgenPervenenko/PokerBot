@@ -5,6 +5,7 @@ namespace Entities {
 	
 	enum class Rank : unsigned short
 	{
+		Undefind = 0,
 		Two = 2, 
 		Three, 
 		Four, 
@@ -17,17 +18,16 @@ namespace Entities {
 		Jack, 
 		Queen, 
 		King, 
-		Ace, 
-		Undefind
+		Ace
 	};
 	
 	enum class Suit : unsigned short
 	{
-		Heart = 1, 
+		Undefind = 0, 
+		Heart, 
 		Dimond, 
 		Spade, //♠
-		Clubs ,// ♣
-		Undefind
+		Clubs// ♣
 	};
 	
 	class Card

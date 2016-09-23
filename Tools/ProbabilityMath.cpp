@@ -1,5 +1,6 @@
 #include "ProbabilityMath.h"
 #include <QtMath>
+#include <QDebug>
 
 using namespace Tools;
 
@@ -12,7 +13,28 @@ qreal ProbabilityMath::CalculateEV(const std::pair<Entities::Card, Entities::Car
 	auto probabilityForBestHand = CalculateProbabilityForBestUpdate( hand, board );
 	auto probabilityForLoss = CalculateProbabilityForLoss( probabilityForBestHand );
 	
-	return probabilityForBestHand * bankWithRaise - probabilityForLoss * nessesaryCall;
+	const auto countCardOnFlop( 3 );
+	
+	if( board.size() == countCardOnFlop )
+	{
+		auto tempBoard = board;
+		tempBoard.push_back( Entities::Card( Entities::Rank::Undefind, Entities::Suit::Undefind ) );
+		
+		auto probabilityForBestHandOnRiver = CalculateProbabilityForBestUpdate( hand, board );
+		auto probabilityForLossOnRiver = CalculateProbabilityForLoss( probabilityForBestHand );
+		
+		auto resulWinProbability = probabilityForBestHand * probabilityForLossOnRiver 
+		        + probabilityForBestHandOnRiver * probabilityForLoss 
+		        + probabilityForBestHand * probabilityForBestHandOnRiver;
+		
+		probabilityForBestHand = resulWinProbability;
+		probabilityForLoss = CalculateProbabilityForLoss( probabilityForBestHand );
+	}
+	
+	qDebug() << "probabilityForBestHand = " << probabilityForBestHand;
+	qDebug() << "probabilityForLoss = " << probabilityForLoss;
+	
+	return ( ( probabilityForBestHand * bankWithRaise ) - ( probabilityForLoss * nessesaryCall ) );
 }
 
 qreal ProbabilityMath::CalculateProbabilityForBestUpdate(const std::pair<Entities::Card, Entities::Card> &hand, 

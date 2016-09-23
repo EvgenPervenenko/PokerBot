@@ -70,6 +70,7 @@ void Round::Flop()
 	for( auto counter = 0; counter < countCardOnFlop; ++counter )
 	{
 		auto card = _diller->GetCard();
+		_gameInfo->AddCardOnBoard( card );
 	}
 }
 
