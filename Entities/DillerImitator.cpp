@@ -29,18 +29,6 @@ Card DillerImitator::GetCard()
 	auto index = std::rand() % ( _deck.size() );
 	auto card = _deck.at( index );
 	
-	while( card.GetSuit() != Entities::Suit::Dimond )
-	{
-		index = std::rand() % ( _deck.size() );
-		card = _deck.at( index );
-		
-		if(  card.GetRank() == Entities::Rank::Ace )
-		{
-			index = std::rand() % ( _deck.size() );
-			card = _deck.at( index );
-		}
-	}
-	
 	_deck.erase(_deck.begin() + index);
 	
 	return card;

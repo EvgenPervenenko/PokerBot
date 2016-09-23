@@ -116,46 +116,114 @@ qint8 ProbabilityMath::CalculateCountCardsForStreatInDeck(const std::vector<Enti
 	}
 	);
 	
-	bool isHoleStreatDraw( false );
-	auto countCards( 0 );
+	std::vector<std::vector<Entities::Card> > groupsConsecutiveCards;
 	
-	for( size_t i = 0; i < temp.size(); ++i )
+	for( size_t i = 1; i < temp.size(); ++i )
 	{
-		auto countCardsInDeq( 1 );
-		auto currentCard = temp.at( i );
-		bool isFirstHole( false );
+		auto currentCard = temp.at( i - 1 );
+		auto nextCard = temp.at( i );
 		
-		for( size_t j = i + 1; j < temp.size(); ++j )
+		auto dif = static_cast<quint8>( nextCard.GetRank() ) 
+		        - static_cast<quint8>( currentCard.GetRank() );
+		std::vector<Entities::Card> consecutiveCards;
+		
+		if( dif == 1 )
 		{
-			auto nextCard = temp.at( j );
+			consecutiveCards.push_back( currentCard );
+			consecutiveCards.push_back( nextCard );
+			++i;
+		}
+		
+		while( dif < 2 && i < temp.size() )
+		{
 			
-			auto dif = static_cast<quint8>( nextCard.GetRank() ) - static_cast<quint8>( currentCard.GetRank() );
+			currentCard = temp.at( i - 1 );
+			nextCard = temp.at( i );
+			
+			dif = static_cast<quint8>( nextCard.GetRank() ) 
+			        - static_cast<quint8>( currentCard.GetRank() );
+			
 			if( dif == 1 )
 			{
-				currentCard = nextCard;
-				++countCardsInDeq;
-			}
-			else if( isFirstHole == true )
-				break;
-			else if( dif == 2 )
-			{
-				isFirstHole = true;
+				consecutiveCards.push_back( nextCard );
+				++i;
 			}
 			else
 				break;
 		}
 		
-		if( countCardsInDeq > 3 )
-		{
-			isHoleStreatDraw = isFirstHole;
-			countCards = countCardsInDeq;
-			break;
-		}
+		if( consecutiveCards.size() > 1 )
+			groupsConsecutiveCards.push_back( consecutiveCards );
 	}
 	
-	if( isHoleStreatDraw )
+	bool isHoleyDraw( false );
+	bool isDoubleSideDraw( false );
+	
+	if( groupsConsecutiveCards.size() == 1 )
+	{
+		auto consecutiveCards = groupsConsecutiveCards.at( 0 );
+		
+		if( consecutiveCards.size() == 4 )
+		{
+			isDoubleSideDraw = true;
+		}
+		else if( consecutiveCards.size() == 3 )
+		{
+			for( size_t i = 0; i < temp.size(); ++i )
+			{
+				auto currentCard = temp.at( i );
+				
+				auto iter = std::find_if( consecutiveCards.begin(), consecutiveCards.end(), 
+				              [&]( const Entities::Card &c ) 
+				{ return ( c.GetRank() == currentCard.GetRank() 
+					       && c.GetSuit() == currentCard.GetSuit() ); });
+				
+				
+				if( iter == consecutiveCards.end() )
+				{
+					auto dif1 = std::abs(static_cast<short>( consecutiveCards.at(0).GetRank() ) 
+					                     - static_cast<short>( currentCard.GetRank() ) );
+					
+					auto dif2 = std::abs(static_cast<short>( consecutiveCards.at(2).GetRank() ) 
+					                     - static_cast<short>( currentCard.GetRank() ) );
+					
+					if( dif1 == 2 || dif2 == 2 )
+					{
+						isHoleyDraw = true;
+						break;
+					}
+				}
+			}
+			
+			if( consecutiveCards.at( 0 ).GetRank() == Entities::Rank::Two )
+			{
+				auto iter = std::find_if( consecutiveCards.begin(), consecutiveCards.end(), 
+				              [&]( const Entities::Card &c ) 
+				{ return ( c.GetRank() == Entities::Rank::Ace ); });
+				
+				if( iter != consecutiveCards.end() )
+					isHoleyDraw = true;
+			}
+		}
+	}
+	else if( groupsConsecutiveCards.size() == 2 )
+	{
+		auto consecutiveCards1 = groupsConsecutiveCards.at( 0 );
+		auto consecutiveCards2 = groupsConsecutiveCards.at( 1 );
+		
+		auto dif1 = std::abs(static_cast<short>( consecutiveCards1.at(0).GetRank() ) 
+		        - static_cast<short>( consecutiveCards2.at(1).GetRank() ) );
+		
+		auto dif2 = std::abs(static_cast<short>( consecutiveCards1.at(1).GetRank() ) 
+		        - static_cast<short>( consecutiveCards2.at(0).GetRank() ) );
+		
+		if( dif1 == 2 || dif2 == 2 )
+			isHoleyDraw = true;
+	}
+	
+	if( isHoleyDraw )
 		return 4;
-	else if( countCards == 4 )
+	else if( isDoubleSideDraw )
 		return 8;
 	else
 		return 0;
