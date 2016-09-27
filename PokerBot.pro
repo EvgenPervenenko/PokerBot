@@ -1,5 +1,4 @@
-QT += core
-QT -= gui
+QT += core widgets
 
 CONFIG += c++11
 
@@ -12,9 +11,10 @@ TEMPLATE = app
 SOURCES += main.cpp \
     Game.cpp
 
+HEADERS += \
+    Game.h
+
 include(PlayerMath/PlayerMath.pri)
 include(Entities/Entities.pri)
 include(Tools/Tools.pri)
-
-HEADERS += \
-    Game.h
+include(Widgets/Widgets.pri)
