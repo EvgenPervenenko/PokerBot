@@ -39,12 +39,13 @@ void Game::StartRound()
 	///NOTE: for test(remove if release)
 	round->Start();
 	
-	auto hand = std::make_pair( Entities::Card( Entities::Rank::King, Entities::Suit::Dimond ), 
-	                                            Entities::Card( Entities::Rank::Ten, Entities::Suit::Heart ) );
+	auto hand = std::make_pair( Entities::Card( Entities::Rank::King, Entities::Suit::Clubs ), 
+	                                            Entities::Card( Entities::Rank::Ten, Entities::Suit::Clubs ) );
 	
 	auto board = round->GetGameInfo()->GetBoard();
 //	board.push_back( Entities::Card( Entities::Rank::Two, Entities::Suit::Clubs ) );
-	auto ev = Tools::ProbabilityMath::CalculateEV( hand, board, 150, 50 );
+	auto coin = Tools::ProbabilityMath::CoinForMinusProbability( board, 150 );
+	auto ev = Tools::ProbabilityMath::CalculateEV( hand, board, 150 + 174 , 174 );
 	
-	qDebug() << ev;
+	qDebug() << ev << "::" << "coin = " << coin;
 }

@@ -15,6 +15,7 @@ namespace Tools {
 		static qreal CalculateProbabilityForBestUpdate( const std::pair<Entities::Card, Entities::Card> &hand, 
 		                                                const std::vector<Entities::Card> &board );
 		static qreal CalculateProbabilityForLoss( qreal probabilityForBestUpdate );
+		static qreal CoinForMinusProbability(const std::vector<Entities::Card> &board , qreal bank);
 		
 	private:
 		static qint8 CalculateCountCardsForStreatInDeck( const std::vector<Entities::Card> &boardWithHand );
